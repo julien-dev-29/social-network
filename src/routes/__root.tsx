@@ -52,9 +52,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<body className="font-sans antialiased dark">
 				<ClerkProvider>
 					<div id="root-layout">
-						<header className="flex justify-center p-2">
+						{/* <header className="flex justify-center px-2 py-4">
 							<Navbar />
-						</header>
+						</header> */}
 						<main>{children}</main>
 						<footer></footer>
 					</div>

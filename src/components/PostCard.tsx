@@ -1,9 +1,9 @@
+import { Ellipsis } from "lucide-react";
 import {
 	Card,
 	CardAction,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
@@ -16,17 +16,19 @@ const PostCard = ({ title, content, createdAt }: Post) => {
 				<CardTitle>{title}</CardTitle>
 				<CardDescription>{createdAt}</CardDescription>
 				<CardAction>
-					<Button type="button" onClick={() => console.log("yolo les kikis")}>
-						See more
+					<Button
+						variant="ghost"
+						type="button"
+						onClick={() => console.log("yolo les kikis")}
+					>
+						<Ellipsis />
 					</Button>
 				</CardAction>
 			</CardHeader>
 			<CardContent>
+				<img src="https://picsum.photos/300/200" alt="pics" />
 				<p>{content}</p>
 			</CardContent>
-			<CardFooter>
-				<p>Card Footer</p>
-			</CardFooter>
 		</Card>
 	);
 };

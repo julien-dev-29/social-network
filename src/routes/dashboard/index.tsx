@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import PostList from "#/components/PostList";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SearchBar from "#/components/SearchBar";
+import TabsComponent from "#/components/Tabs";
 
 const posts: Post[] = [
 	{
@@ -60,25 +62,26 @@ const posts: Post[] = [
 	},
 ];
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/dashboard/")({ component: Home });
 
 function Home() {
+	const [postType, setPostType] = useState("foryou");
 	return (
-		<div className="mx-auto w-1/2">
-			<Tabs defaultValue="account" className="w-full">
-				<TabsList className="w-full flex justify-between">
-					<TabsTrigger value="account">For you</TabsTrigger>
-					<TabsTrigger value="password">Following</TabsTrigger>
-				</TabsList>
-				<TabsContent value="account">
-					{posts.length > 0 ? (
-						<PostList posts={posts} />
-					) : (
-						<div>No posts have been published yet</div>
-					)}
-				</TabsContent>
-				<TabsContent value="password">No posts have been published yet</TabsContent>
-			</Tabs>
+		<div className="relative">
+			<div className="sticky flex top-0 z-50 items-center justify-start pt-4 gap-5">
+				<TabsComponent posts={posts} setPostType={setPostType} />
+				<SearchBar />
+			</div>
+
+			{posts.length > 0 ? (
+				postType === "foryou" ? (
+					<PostList posts={posts} />
+				) : (
+					<div>No Post Yet</div>
+				)
+			) : (
+				<div>No Post yet</div>
+			)}
 		</div>
 	);
 }
