@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/tanstack-react-start";
+import { dark } from "@clerk/ui/themes";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import {
@@ -7,7 +8,6 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import Navbar from "#/components/Navbar";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
@@ -50,13 +50,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body className="font-sans antialiased dark">
-				<ClerkProvider>
+				<ClerkProvider
+					appearance={{
+						theme: dark,
+					}}
+				>
 					<div id="root-layout">
-						{/* <header className="flex justify-center px-2 py-4">
-							<Navbar />
-						</header> */}
 						<main>{children}</main>
-						<footer></footer>
 					</div>
 					<TanStackDevtools
 						config={{

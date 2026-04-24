@@ -11,7 +11,7 @@ import { Button } from "./ui/button";
 
 const PostCard = ({ title, content, createdAt }: Post) => {
 	return (
-		<Card>
+		<Card className="w-1/2">
 			<CardHeader>
 				<CardTitle>{title}</CardTitle>
 				<CardDescription>{createdAt}</CardDescription>
@@ -27,7 +27,7 @@ const PostCard = ({ title, content, createdAt }: Post) => {
 			</CardHeader>
 			<CardContent>
 				<img src="https://picsum.photos/300/200" alt="pics" />
-				<p>{content}</p>
+				<p className="text-primary/70">{content}</p>
 			</CardContent>
 		</Card>
 	);
