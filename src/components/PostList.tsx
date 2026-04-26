@@ -1,4 +1,3 @@
-import { UserAvatar } from "@clerk/tanstack-react-start";
 import PostCard from "./PostCard";
 
 const PostList = ({ posts }: { posts: Post[] }) => {
@@ -6,9 +5,7 @@ const PostList = ({ posts }: { posts: Post[] }) => {
 		<div className="">
 			{posts.map((post) => (
 				<div className="flex" key={post.id}>
-					<div className="py-4 pl-4">
-						<UserAvatar />
-					</div>
+					<div className="py-4 pl-4"></div>
 					<PostCard {...post} />
 				</div>
 			))}

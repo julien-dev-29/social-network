@@ -1,5 +1,3 @@
-import { ClerkProvider } from "@clerk/tanstack-react-start";
-import { dark } from "@clerk/ui/themes";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import {
@@ -50,27 +48,21 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body className="font-sans antialiased dark">
-				<ClerkProvider
-					appearance={{
-						theme: dark,
+				<div id="root-layout">
+					<main>{children}</main>
+				</div>
+				<TanStackDevtools
+					config={{
+						position: "bottom-right",
 					}}
-				>
-					<div id="root-layout">
-						<main>{children}</main>
-					</div>
-					<TanStackDevtools
-						config={{
-							position: "bottom-right",
-						}}
-						plugins={[
-							{
-								name: "Tanstack Router",
-								render: <TanStackRouterDevtoolsPanel />,
-							},
-							TanStackQueryDevtools,
-						]}
-					/>
-				</ClerkProvider>
+					plugins={[
+						{
+							name: "Tanstack Router",
+							render: <TanStackRouterDevtoolsPanel />,
+						},
+						TanStackQueryDevtools,
+					]}
+				/>
 				<Scripts />
 			</body>
 		</html>

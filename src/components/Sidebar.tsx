@@ -5,7 +5,6 @@ import {
 	SidebarGroup,
 	SidebarHeader,
 } from "@/components/ui/sidebar";
-import NavUser from "./NavUser";
 
 export function AppSidebar() {
 	return (
@@ -16,7 +15,6 @@ export function AppSidebar() {
 				<SidebarGroup />
 			</SidebarContent>
 			<SidebarFooter>
-				<NavUser />
 			</SidebarFooter>
 		</Sidebar>
 	);

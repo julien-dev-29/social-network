@@ -68,7 +68,7 @@ function Home() {
 	const [postType, setPostType] = useState("foryou");
 	return (
 		<div className="relative">
-			<div className="sticky flex top-0 z-50 items-center justify-start pt-4 gap-5">
+			<div className="sticky flex top-0 z-50 items-center justify-between pt-4 gap-5">
 				<TabsComponent posts={posts} setPostType={setPostType} />
 				<SearchBar />
 			</div>

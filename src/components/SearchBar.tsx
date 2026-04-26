@@ -5,12 +5,14 @@ import { Input } from "./ui/input";
 
 const SearchBar = () => {
 	return (
-		<Field className="max-w-1/4">
-			<ButtonGroup>
-				<Input id="input-button-group" placeholder="Type to search..." />
-				<Button variant="outline">Search</Button>
-			</ButtonGroup>
-		</Field>
+		<div className="flex-1 flex justify-center">
+			<Field className="w-1/2">
+				<ButtonGroup>
+					<Input id="input-button-group" placeholder="Type to search..." />
+					<Button variant="outline">Search</Button>
+				</ButtonGroup>
+			</Field>
+		</div>
 	);
 };
 
