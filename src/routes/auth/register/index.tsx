@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { GalleryVerticalEnd } from "lucide-react";
-import { LoginForm } from "#/components/auth/login-form";
+import SignUpForm from "#/components/auth/signup-form";
 
-export const Route = createFileRoute("/auth/")({
+export const Route = createFileRoute("/auth/register/")({
 	component: RouteComponent,
 });
 
@@ -20,7 +20,7 @@ function RouteComponent() {
 				</div>
 				<div className="flex flex-1 items-center justify-center">
 					<div className="w-full max-w-xs">
-						<LoginForm />
+						<SignUpForm />
 					</div>
 				</div>
 			</div>
