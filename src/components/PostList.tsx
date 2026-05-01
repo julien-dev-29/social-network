@@ -1,12 +1,12 @@
+import type { Post } from "generated/prisma/client";
 import PostCard from "./PostCard";
 
-const PostList = ({ posts }: { posts: Post[] }) => {
+const PostList = ({ posts, userId }: { posts: Post[]; userId: string }) => {
 	return (
-		<div className="">
+		<div className="p-2 flex flex-col gap-2">
 			{posts.map((post) => (
-				<div className="flex" key={post.id}>
-					<div className="py-4 pl-4"></div>
-					<PostCard {...post} />
+				<div className="" key={post.id}>
+					<PostCard {...post} userId={userId} />
 				</div>
 			))}
 		</div>

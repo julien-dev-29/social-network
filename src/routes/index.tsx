@@ -60,7 +60,9 @@ const posts: Post[] = [
 	},
 ];
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+	component: Home,
+});
 
 function Home() {
 	return (
@@ -70,6 +72,7 @@ function Home() {
 					<TabsTrigger value="account">For you</TabsTrigger>
 					<TabsTrigger value="password">Following</TabsTrigger>
 				</TabsList>
+
 				<TabsContent value="account">
 					{posts.length > 0 ? (
 						<PostList posts={posts} />
@@ -77,7 +80,9 @@ function Home() {
 						<div>No posts have been published yet</div>
 					)}
 				</TabsContent>
-				<TabsContent value="password">No posts have been published yet</TabsContent>
+				<TabsContent value="password">
+					No posts have been published yet
+				</TabsContent>
 			</Tabs>
 		</div>
 	);

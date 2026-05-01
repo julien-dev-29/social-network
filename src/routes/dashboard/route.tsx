@@ -1,4 +1,8 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Outlet,
+	useRouteContext,
+} from "@tanstack/react-router";
 import { AppSidebar } from "#/components/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
@@ -7,9 +11,10 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function RouteComponent() {
+	const { user } = useRouteContext({ from: "/dashboard/" });
 	return (
 		<SidebarProvider className="">
-			<AppSidebar />
+			<AppSidebar user={user} />
 			<main className="w-full">
 				<Outlet />
 			</main>

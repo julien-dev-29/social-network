@@ -1,5 +1,7 @@
 import { useForm } from "@tanstack/react-form";
+import { useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
+import { signUp } from "#/lib/auth-client";
 import { Button } from "../ui/button";
 import {
 	Field,
@@ -28,6 +30,7 @@ const formSchema = z.object({
 });
 
 const SignUpForm = () => {
+	const navigate = useNavigate();
 	const form = useForm({
 		defaultValues: {
 			name: "",
@@ -36,14 +39,40 @@ const SignUpForm = () => {
 			confirmPassword: "",
 		},
 		onSubmit: async ({ value }) => {
-			console.log(value);
+			try {
+				await signUp.email(
+					{
+						name: value.name,
+						email: value.email,
+						password: value.password,
+					},
+					{
+						onError: (ctx) => {
+							// display the error message
+							alert(ctx.error.message);
+						},
+						onSuccess: () => {
+							navigate({
+								to: "/dashboard",
+							});
+						},
+					},
+				);
+			} catch (error) {
+				console.log("error: ", error);
+			}
 		},
 		validators: {
 			onSubmit: formSchema,
 		},
 	});
 	return (
-		<form>
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				form.handleSubmit();
+			}}
+		>
 			<FieldGroup className="flex flex-col gap-8">
 				<div className="flex flex-col items-center gap-1 text-center">
 					<h1 className="text-2xl font-bold">Create your account</h1>
@@ -158,7 +187,7 @@ const SignUpForm = () => {
 					}}
 				/>
 				<Field>
-					<Button>Create Account</Button>
+					<Button type="submit">Create Account</Button>
 				</Field>
 				<FieldSeparator>Or continue with</FieldSeparator>
 				<Field>
@@ -173,7 +202,7 @@ const SignUpForm = () => {
 						Sign up with GitHub
 					</Button>
 					<FieldDescription className="px-6 text-center">
-						Already have an account? <a href="/">Sign in</a>
+						Already have an account? <a href="/auth/login">Sign in</a>
 					</FieldDescription>
 				</Field>
 			</FieldGroup>

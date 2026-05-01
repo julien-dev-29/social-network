@@ -1,6 +1,8 @@
 import { useForm } from "@tanstack/react-form";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import * as z from "zod";
+import { signIn } from "#/lib/auth-client";
 import {
 	Field,
 	FieldDescription,
@@ -24,6 +26,7 @@ const formSchema = z.object({
 });
 
 export function LoginForm() {
+	const navigate = useNavigate();
 	const form = useForm({
 		defaultValues: {
 			email: "",
@@ -33,20 +36,30 @@ export function LoginForm() {
 			onSubmit: formSchema,
 		},
 		onSubmit: async ({ value }) => {
-			toast("You submitted the following values:", {
-				description: (
-					<pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-						<code>{JSON.stringify(value, null, 2)}</code>
-					</pre>
-				),
-				position: "bottom-right",
-				classNames: {
-					content: "flex flex-col gap-2",
-				},
-				style: {
-					"--border-radius": "calc(var(--radius)  + 4px)",
-				} as React.CSSProperties,
-			});
+			try {
+				const res = await signIn.email(
+					{
+						email: value.email,
+						password: value.password,
+					},
+					{
+						onError: (ctx) => {
+							// display the error message
+							alert(ctx.error.message);
+						},
+						onSuccess: () => {
+							navigate({
+								to: "/dashboard",
+							});
+						},
+					},
+				);
+
+				console.log("LOGIN SUCCESS:", res);
+			} catch (err) {
+				console.error("LOGIN ERROR:", err);
+				toast.error("Login failed");
+			}
 		},
 	});
 
@@ -55,7 +68,6 @@ export function LoginForm() {
 			id="bug-report-form"
 			onSubmit={(e) => {
 				e.preventDefault();
-				e.stopPropagation();
 				form.handleSubmit();
 			}}
 		>
@@ -140,7 +152,7 @@ export function LoginForm() {
 					</Button>
 					<FieldDescription className="text-center">
 						Don&apos;t have an account?{" "}
-						<a href="/" className="underline underline-offset-4">
+						<a href="/auth/register" className="underline underline-offset-4">
 							Sign up
 						</a>
 					</FieldDescription>

@@ -1,81 +1,40 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import PostList from "#/components/PostList";
 import SearchBar from "#/components/SearchBar";
 import TabsComponent from "#/components/Tabs";
+import { getSession } from "#/lib/auth.functions";
+import { getAllPosts } from "#/lib/posts.functions";
 
-const posts: Post[] = [
-	{
-		id: crypto.randomUUID(),
-		title: "My first post",
-		slug: "my-first-post",
-		content:
-			"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-		category: "General",
-		createdAt: new Date().toLocaleDateString(),
-		updatedAt: new Date().toLocaleDateString(),
-		tags: ["introduction", "welcome"],
+export const Route = createFileRoute("/dashboard/")({
+	beforeLoad: async () => {
+		const session = await getSession();
+		if (!session) {
+			throw redirect({ to: "/auth/login" });
+		}
+		return { user: session.user };
 	},
-	{
-		id: crypto.randomUUID(),
-		title: "My second post",
-		slug: "my-second-post",
-		content:
-			"Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-		category: "General",
-		createdAt: new Date().toLocaleDateString(),
-		updatedAt: new Date().toLocaleDateString(),
-		tags: ["update", "news"],
-	},
-	{
-		id: crypto.randomUUID(),
-		title: "My third post",
-		slug: "my-third-post",
-		content:
-			"Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-		category: "General",
-		createdAt: new Date().toLocaleDateString(),
-		updatedAt: new Date().toLocaleDateString(),
-		tags: ["announcement", "events"],
-	},
-	{
-		id: crypto.randomUUID(),
-		title: "My fourth post",
-		slug: "my-fourth-post",
-		content:
-			"Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-		category: "General",
-		createdAt: new Date().toLocaleDateString(),
-		updatedAt: new Date().toLocaleDateString(),
-		tags: ["tips", "tricks"],
-	},
-	{
-		id: crypto.randomUUID(),
-		title: "My fifth post",
-		slug: "my-fifth-post",
-		content:
-			"Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.",
-		category: "General",
-		createdAt: new Date().toLocaleDateString(),
-		updatedAt: new Date().toLocaleDateString(),
-		tags: ["insights", "analysis"],
-	},
-];
-
-export const Route = createFileRoute("/dashboard/")({ component: Home });
+	component: Home,
+	loader: () => getAllPosts(),
+});
 
 function Home() {
+	const posts = Route.useLoaderData();
+	const { user } = Route.useRouteContext();
 	const [postType, setPostType] = useState("foryou");
 	return (
 		<div className="relative">
-			<div className="sticky flex top-0 z-50 items-center justify-between pt-4 gap-5">
-				<TabsComponent posts={posts} setPostType={setPostType} />
-				<SearchBar />
+			<div className="sticky flex gap-5 top-0 z-50 items-center bg-background/60 border-b">
+				<div className="w-1/2">
+					<TabsComponent posts={posts} setPostType={setPostType} />
+				</div>
+				<div className="w-1/3">
+					<SearchBar />
+				</div>
 			</div>
-
 			{posts.length > 0 ? (
 				postType === "foryou" ? (
-					<PostList posts={posts} />
+					<PostList posts={posts} userId={user.id} />
 				) : (
 					<div>No Post Yet</div>
 				)

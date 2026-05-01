@@ -1,3 +1,4 @@
+import type { Post } from "generated/prisma/client";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TabsComponent = ({
@@ -7,8 +8,8 @@ const TabsComponent = ({
 	setPostType: React.Dispatch<React.SetStateAction<string>>;
 }) => {
 	return (
-		<div className="w-6/12">
-			<Tabs defaultValue="foryou" className="w-full py-3 bg-black/70">
+		<div className="flex-1">
+			<Tabs defaultValue="foryou" className="w-full py-3">
 				<TabsList variant="line" className="w-full flex justify-between">
 					<TabsTrigger value="foryou" onClick={() => setPostType("foryou")}>
 						For you
