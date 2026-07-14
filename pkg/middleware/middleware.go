@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+type contextKey string
+
+const UserIDKey contextKey = "userID"
+
 func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s %s", r.Method, r.URL.Path)
@@ -63,7 +67,7 @@ func RequireAuth(sv SessionValidator) func(http.Handler) http.Handler {
 			}
 
 			ctx := r.Context()
-			ctx = context.WithValue(ctx, "userID", userID)
+			ctx = context.WithValue(ctx, UserIDKey, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

@@ -45,7 +45,12 @@ func (s *SessionStore) Get(sessionID string) (int, bool) {
 	sess, ok := s.sessions[sessionID]
 	s.mu.RUnlock()
 
-	if !ok || time.Now().After(sess.expiresAt) {
+	if !ok {
+		return 0, false
+	}
+
+	if time.Now().After(sess.expiresAt) {
+		s.Delete(sessionID)
 		return 0, false
 	}
 

@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"social-network/pkg/middleware"
 )
 
 type CreatePostRequest struct {
@@ -21,7 +22,7 @@ type PostResponse struct {
 }
 
 func getUserID(r *http.Request) int {
-	userID, _ := r.Context().Value("userID").(int)
+	userID, _ := r.Context().Value(middleware.UserIDKey).(int)
 	return userID
 }
 
@@ -90,6 +91,11 @@ func GetPosts(db *sql.DB) http.HandlerFunc {
 				return
 			}
 			posts = append(posts, post)
+		}
+
+		if err := rows.Err(); err != nil {
+			writeError(w, http.StatusInternalServerError, "error reading posts")
+			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")

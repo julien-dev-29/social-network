@@ -3,14 +3,17 @@ module social-network
 go 1.25.0
 
 require (
-	github.com/go-chi/chi/v5 v5.3.1 // indirect
-	github.com/golang-migrate/migrate/v4 v4.19.1 // indirect
+	github.com/go-chi/chi/v5 v5.3.1
+	github.com/golang-migrate/migrate/v4 v4.19.1
+	github.com/mattn/go-sqlite3 v1.14.48
+	golang.org/x/crypto v0.54.0
+)
+
+require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
-	github.com/mattn/go-sqlite3 v1.14.48 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
-	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/mod v0.29.0 // indirect
 	golang.org/x/sync v0.18.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
