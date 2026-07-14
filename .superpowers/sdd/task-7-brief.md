@@ -1,0 +1,223 @@
+﻿### Task 7: Auth handlers (Register, Login, Logout)
+
+**Files:**
+- Create: `pkg/handlers/auth.go`
+
+**Interfaces:**
+- Consumes: `*SessionStore` from Task 5
+- Consumes: `*sql.DB` from Task 2
+- Produces: `func Register(db *sql.DB, sessionStore *SessionStore) http.HandlerFunc`
+- Produces: `func Login(db *sql.DB, sessionStore *SessionStore) http.HandlerFunc`
+- Produces: `func Logout(sessionStore *SessionStore) http.HandlerFunc`
+
+- [ ] **Step 1: Write auth.go**
+
+```go
+package handlers
+
+import (
+	"database/sql"
+	"encoding/json"
+	"net/http"
+	"strings"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
+type RegisterRequest struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type UserResponse struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
+func writeError(w http.ResponseWriter, status int, msg string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write([]byte(`{"error":"` + msg + `"}`))
+}
+
+func Register(db *sql.DB, sessionStore *SessionStore) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req RegisterRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+
+		req.Username = strings.TrimSpace(req.Username)
+		req.Email = strings.TrimSpace(req.Email)
+
+		if req.Username == "" || req.Email == "" || req.Password == "" {
+			writeError(w, http.StatusBadRequest, "username, email, and password are required")
+			return
+		}
+
+		if !strings.Contains(req.Email, "@") {
+			writeError(w, http.StatusBadRequest, "invalid email format")
+			return
+		}
+
+		if len(req.Password) < 6 {
+			writeError(w, http.StatusBadRequest, "password must be at least 6 characters")
+			return
+		}
+
+		hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "failed to hash password")
+			return
+		}
+
+		result, err := db.Exec(
+			"INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+			req.Username, req.Email, string(hash),
+		)
+		if err != nil {
+			if strings.Contains(err.Error(), "UNIQUE constraint") {
+				writeError(w, http.StatusBadRequest, "username or email already exists")
+				return
+			}
+			writeError(w, http.StatusInternalServerError, "failed to create user")
+			return
+		}
+
+		userID, _ := result.LastInsertId()
+
+		sessionID, err := sessionStore.Create(int(userID))
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "failed to create session")
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_id",
+			Value:    sessionID,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   true,
+			MaxAge:   86400,
+		})
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(UserResponse{
+			ID:       int(userID),
+			Username: req.Username,
+			Email:    req.Email,
+		})
+	}
+}
+
+func Login(db *sql.DB, sessionStore *SessionStore) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req LoginRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+
+		req.Email = strings.TrimSpace(req.Email)
+
+		if req.Email == "" || req.Password == "" {
+			writeError(w, http.StatusBadRequest, "email and password are required")
+			return
+		}
+
+		var user struct {
+			ID           int
+			PasswordHash string
+			Username     string
+		}
+
+		err := db.QueryRow(
+			"SELECT id, password_hash, username FROM users WHERE email = ?",
+			req.Email,
+		).Scan(&user.ID, &user.PasswordHash, &user.Username)
+
+		if err == sql.ErrNoRows {
+			writeError(w, http.StatusUnauthorized, "invalid email or password")
+			return
+		}
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "database error")
+			return
+		}
+
+		if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+			writeError(w, http.StatusUnauthorized, "invalid email or password")
+			return
+		}
+
+		sessionID, err := sessionStore.Create(user.ID)
+		if err != nil {
+			writeError(w, http.StatusInternalServerError, "failed to create session")
+			return
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_id",
+			Value:    sessionID,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   true,
+			MaxAge:   86400,
+		})
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(UserResponse{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    req.Email,
+		})
+	}
+}
+
+func Logout(sessionStore *SessionStore) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("session_id")
+		if err == nil {
+			sessionStore.Delete(cookie.Value)
+		}
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_id",
+			Value:    "",
+			Path:     "/",
+			HttpOnly: true,
+			MaxAge:   -1,
+		})
+
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
+```
+
+- [ ] **Step 2: Verify it compiles**
+
+Run:
+```bash
+go build ./pkg/handlers/
+```
+
+Expected: No errors.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add pkg/handlers/auth.go
+git commit -m "feat: add Register, Login, Logout handlers with bcrypt and sessions"
+```
+
+---
+

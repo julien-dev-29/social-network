@@ -1,0 +1,10 @@
+﻿# Review package: 5c16e6f..ea701a2
+
+## Commits
+ea701a2 feat: add RequireAuth middleware with SessionValidator interface
+
+## Files changed
+ pkg/middleware/middleware.go | 32 ++++++++++++++++++++++++++++++++  1 file changed, 32 insertions(+)
+
+## Diff
+diff --git a/pkg/middleware/middleware.go b/pkg/middleware/middleware.go index 11539d2..771f2f0 100644 --- a/pkg/middleware/middleware.go +++ b/pkg/middleware/middleware.go @@ -1,13 +1,14 @@  package middleware    import ( +	"context"  	"log"  	"net/http"  	"strings"  )    func Logger(next http.Handler) http.Handler {  	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {  		log.Printf("%s %s", r.Method, r.URL.Path)  		next.ServeHTTP(w, r)  	}) @@ -29,10 +30,41 @@ func CORS(next http.Handler) http.Handler {  }    func ContentType(next http.Handler) http.Handler {  	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {  		if strings.HasPrefix(r.URL.Path, "/api/") {  			w.Header().Set("Content-Type", "application/json")  		}  		next.ServeHTTP(w, r)  	})  } + +// SessionValidator is the interface RequireAuth needs from the session store. +type SessionValidator interface { +	Get(sessionID string) (int, bool) +} + +func RequireAuth(sv SessionValidator) func(http.Handler) http.Handler { +	return func(next http.Handler) http.Handler { +		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { +			cookie, err := r.Cookie("session_id") +			if err != nil { +				w.Header().Set("Content-Type", "application/json") +				w.WriteHeader(http.StatusUnauthorized) +				w.Write([]byte(`{"error":"not authenticated"}`)) +				return +			} + +			userID, ok := sv.Get(cookie.Value) +			if !ok { +				w.Header().Set("Content-Type", "application/json") +				w.WriteHeader(http.StatusUnauthorized) +				w.Write([]byte(`{"error":"invalid or expired session"}`)) +				return +			} + +			ctx := r.Context() +			ctx = context.WithValue(ctx, "userID", userID) +			next.ServeHTTP(w, r.WithContext(ctx)) +		}) +	} +}

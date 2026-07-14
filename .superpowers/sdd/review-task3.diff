@@ -1,0 +1,10 @@
+﻿# Review package: 8da02e0..3692b58
+
+## Commits
+3692b58 feat: add users and posts migration files
+
+## Files changed
+ pkg/db/migrations/sqlite/000001_create_users_table.down.sql | 1 +  pkg/db/migrations/sqlite/000001_create_users_table.up.sql   | 7 +++++++  pkg/db/migrations/sqlite/000002_create_posts_table.down.sql | 1 +  pkg/db/migrations/sqlite/000002_create_posts_table.up.sql   | 7 +++++++  4 files changed, 16 insertions(+)
+
+## Diff
+diff --git a/pkg/db/migrations/sqlite/000001_create_users_table.down.sql b/pkg/db/migrations/sqlite/000001_create_users_table.down.sql new file mode 100644 index 0000000..c99ddcd --- /dev/null +++ b/pkg/db/migrations/sqlite/000001_create_users_table.down.sql @@ -0,0 +1 @@ +DROP TABLE IF EXISTS users; diff --git a/pkg/db/migrations/sqlite/000001_create_users_table.up.sql b/pkg/db/migrations/sqlite/000001_create_users_table.up.sql new file mode 100644 index 0000000..485075c --- /dev/null +++ b/pkg/db/migrations/sqlite/000001_create_users_table.up.sql @@ -0,0 +1,7 @@ +CREATE TABLE IF NOT EXISTS users ( +    id INTEGER PRIMARY KEY AUTOINCREMENT, +    username TEXT UNIQUE NOT NULL, +    email TEXT UNIQUE NOT NULL, +    password_hash TEXT NOT NULL, +    created_at DATETIME DEFAULT CURRENT_TIMESTAMP +); diff --git a/pkg/db/migrations/sqlite/000002_create_posts_table.down.sql b/pkg/db/migrations/sqlite/000002_create_posts_table.down.sql new file mode 100644 index 0000000..032b7da --- /dev/null +++ b/pkg/db/migrations/sqlite/000002_create_posts_table.down.sql @@ -0,0 +1 @@ +DROP TABLE IF EXISTS posts; diff --git a/pkg/db/migrations/sqlite/000002_create_posts_table.up.sql b/pkg/db/migrations/sqlite/000002_create_posts_table.up.sql new file mode 100644 index 0000000..33ae40f --- /dev/null +++ b/pkg/db/migrations/sqlite/000002_create_posts_table.up.sql @@ -0,0 +1,7 @@ +CREATE TABLE IF NOT EXISTS posts ( +    id INTEGER PRIMARY KEY AUTOINCREMENT, +    user_id INTEGER NOT NULL, +    content TEXT NOT NULL, +    created_at DATETIME DEFAULT CURRENT_TIMESTAMP, +    FOREIGN KEY (user_id) REFERENCES users(id) +);

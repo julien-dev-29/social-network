@@ -1,0 +1,10 @@
+﻿# Review package: 3692b58..a300b55
+
+## Commits
+a300b55 feat: add Logger, CORS, and ContentType middleware
+
+## Files changed
+ pkg/middleware/middleware.go | 38 ++++++++++++++++++++++++++++++++++++++  1 file changed, 38 insertions(+)
+
+## Diff
+diff --git a/pkg/middleware/middleware.go b/pkg/middleware/middleware.go new file mode 100644 index 0000000..11539d2 --- /dev/null +++ b/pkg/middleware/middleware.go @@ -0,0 +1,38 @@ +package middleware + +import ( +	"log" +	"net/http" +	"strings" +) + +func Logger(next http.Handler) http.Handler { +	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { +		log.Printf("%s %s", r.Method, r.URL.Path) +		next.ServeHTTP(w, r) +	}) +} + +func CORS(next http.Handler) http.Handler { +	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { +		w.Header().Set("Access-Control-Allow-Origin", "*") +		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS") +		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization") + +		if r.Method == http.MethodOptions { +			w.WriteHeader(http.StatusNoContent) +			return +		} + +		next.ServeHTTP(w, r) +	}) +} + +func ContentType(next http.Handler) http.Handler { +	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { +		if strings.HasPrefix(r.URL.Path, "/api/") { +			w.Header().Set("Content-Type", "application/json") +		} +		next.ServeHTTP(w, r) +	}) +}
